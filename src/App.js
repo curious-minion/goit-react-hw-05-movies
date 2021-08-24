@@ -12,7 +12,9 @@ const HomePage = lazy(() =>
   import('./components/HomePage' /*webpackChunkName: 'home-page' */),
 );
 
-// const MoviesPage = lazy(() => import('./components/MoviesPage' /*webpackChunkName: 'movies-page' */),);
+const MoviesPage = lazy(() =>
+  import('./components/MoviesPage' /*webpackChunkName: 'movies-page' */),
+);
 const MovieDetailsPage = lazy(() =>
   import(
     './components/MovieDetailsPage' /*webpackChunkName: 'movie-details-page' */
@@ -37,7 +39,7 @@ export default function App() {
       >
         <Switch>
           <Route path={routes.home} exact component={HomePage} />
-          {/* <Route  path={routes.movies} exact component={MoviesPage} /> */}
+          <Route path={routes.movies} exact component={MoviesPage} />
           <Route path={routes.movieDetails} component={MovieDetailsPage} />
           <Route component={PageNotFound} />
         </Switch>
