@@ -1,0 +1,47 @@
+nav {
+  font-size: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding-top: 20px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.navigation_button {
+  text-align: center;
+  padding: 10px 5px;
+  min-width: 120px;
+  height: 50px;
+
+  background: radial-gradient(
+    circle,
+    rgba(242, 255, 148, 0.85) 20%,
+    rgba(54, 164, 59, 0.8771709367340687) 120%
+  );
+  color: rgba(22, 135, 27, 1);
+  border-radius: 5px;
+  border-color: transparent;
+  font-weight: 700;
+
+  &:hover,
+  &:focus {
+    transform: scale(1.05);
+    color: orange;
+  }
+}
+
+.go_back {
+  @extend .navigation_button;
+  margin-left: 20px;
+  font-size: 20px;
+  padding: 7px;
+  min-width: fit-content;
+  height: fit-content;
+}
+
+.navigation_button_active {
+  text-decoration: underline;
+}

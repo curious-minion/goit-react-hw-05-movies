@@ -1,0 +1,38 @@
+.movie_description {
+  display: flex;
+  margin-top: 20px;
+}
+
+.movie_poster {
+  max-width: 320px;
+  border-radius: 5px;
+  margin-right: 30px;
+}
+
+.movie_info {
+  font-size: 18px;
+}
+
+.genres {
+  list-style: circle;
+}
+
+.additional_info {
+  font-size: 18px;
+  font-weight: 700;
+}
+.cast_reviews {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.cast {
+  margin-right: 30px;
+}
+.cast,
+.reviews {
+  &:hover,
+  &:focus {
+    transform: scale(1.05);
+  }
+}
