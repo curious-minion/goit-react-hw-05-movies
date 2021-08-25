@@ -1,4 +1,5 @@
 .Searchbar {
+  margin-top: 15px;
   top: 0;
   left: 0;
   position: sticky;
@@ -12,11 +13,10 @@
   padding-top: 12px;
   padding-bottom: 12px;
   color: #fff;
-  background: linear-gradient(
-    90deg,
-    rgba(172, 158, 182, 1) 0%,
-    rgba(226, 120, 120, 1) 51%,
-    rgba(255, 206, 136, 1) 100%
+  background: radial-gradient(
+    circle,
+    rgba(242, 255, 148, 0.85) 60%,
+    rgba(54, 164, 59, 0.8771709367340687) 130%
   );
   box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
     0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
@@ -77,4 +77,10 @@
 .SearchForm_input::placeholder {
   font: inherit;
   font-size: 18px;
+}
+
+.load {
+  display: flex;
+  margin: 0 auto;
+  margin-bottom: 20px;
 }
