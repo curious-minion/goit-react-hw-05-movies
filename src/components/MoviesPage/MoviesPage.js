@@ -1,8 +1,8 @@
-import React, { useState, useRef, Fragment } from 'react';
+import React, { useState } from 'react';
 
-import { Link, useRouteMatch, useLocation, useHistory } from 'react-router-dom';
-import queryString from 'query-string';
-import { useInfiniteQuery } from 'react-query';
+import { Link, useLocation, useHistory } from 'react-router-dom';
+// import queryString from 'query-string';
+import { useInfiniteQuery, QueryCache, QueryClient } from 'react-query';
 
 import axios from 'axios';
 import links from '../../services/links';
@@ -23,20 +23,12 @@ export default function MoviesPage() {
   const history = useHistory();
   const [request, setRequest] = useState('');
 
-  const { query } = queryString.parse(location.search);
+  // const { query } = queryString.parse(location.search);
+  // const queryCache = new QueryCache();
+  const queryClient = new QueryClient();
 
   const handleRequestChange = event => {
     setRequest(event.currentTarget.value.toLowerCase());
-  };
-
-  const handleFormSubmit = request => {
-    setRequest('');
-    if (request.length === 0) {
-      notify();
-      return;
-    }
-    setRequest(request);
-    refetch({ refetchPage: (page, index) => index === 0 });
   };
 
   const handleSubmit = event => {
@@ -46,8 +38,34 @@ export default function MoviesPage() {
       toast.error('Type in your search request');
       return;
     }
+
     handleFormSubmit(request);
     onSubmit(request);
+  };
+
+  const handleFormSubmit = request => {
+    // setRequest('');
+    if (request.length === 0) {
+      notify();
+      return;
+    }
+    setRequest(request);
+    // queryCache.clear();
+    // queryClient.clear();
+    // setRequest(request);
+    // queryClient.resetQueries('movies', { exact: true });
+    // queryClient.removeQueries('movies', { exact: true });
+    // queryClient.refetchQueries('movies', { refetchPage: (page, index) => index === 0 });
+
+    queryClient.setQueryData('movies', data => ({
+      pages: data?.pages.slice(0, 1),
+      pageParams: data?.pageParams.slice(0, 1),
+    }));
+
+    refetch({ refetchPage: (page, index) => index === 0 });
+
+    // setRequest('');
+    // console.log(data?.pages);
   };
 
   const onSubmit = search => {
@@ -72,13 +90,14 @@ export default function MoviesPage() {
     error,
     isLoading,
     isSuccess,
-    isError,
+    // isError,
     fetchNextPage,
     hasNextPage,
-    isFetching,
+    // isFetching,
     isFetchingNextPage,
-    status,
+    // status,
     refetch,
+    // isPreviousData,
   } = useInfiniteQuery('movies', fetchMovies, {
     refetchOnWindowFocus: false,
     enabled: false,
