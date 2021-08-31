@@ -47,7 +47,7 @@ export default function MovieDetailsPage() {
     );
 
   const onGoBack = () => {
-    history.push(location?.state?.from?.location ?? routes.home);
+    history.push(location?.state?.from ?? routes.movies);
   };
 
   return (

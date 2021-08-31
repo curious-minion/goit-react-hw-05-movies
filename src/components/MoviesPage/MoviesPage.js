@@ -1,174 +1,101 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-// import queryString from 'query-string';
-import { useInfiniteQuery, QueryCache, QueryClient } from 'react-query';
 
+import queryString from 'query-string';
+import { useInfiniteQuery } from 'react-query';
 import axios from 'axios';
-import links from '../../services/links';
 
+import links from '../../services/links';
 import Loader from 'react-loader-spinner';
 import routes from '../../routes';
 import MovieCard from '../HomePage/MovieCard';
+import SearchBar from './SearchBar';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../Navigation/Navigation.scss';
-
 import './MoviesPage.scss';
 import '../HomePage/Homepage.scss';
 
 export default function MoviesPage() {
   const location = useLocation();
   const history = useHistory();
+  const { query } = queryString.parse(location.search);
+
   const [request, setRequest] = useState('');
 
-  // const { query } = queryString.parse(location.search);
-  // const queryCache = new QueryCache();
-  const queryClient = new QueryClient();
-
-  const handleRequestChange = event => {
-    setRequest(event.currentTarget.value.toLowerCase());
-  };
-
-  const handleSubmit = event => {
-    event.preventDefault();
-
-    if (request.trim() === '') {
-      toast.error('Type in your search request');
-      return;
-    }
-
-    handleFormSubmit(request);
-    onSubmit(request);
-  };
-
-  const handleFormSubmit = request => {
-    // setRequest('');
-    if (request.length === 0) {
-      notify();
-      return;
-    }
-    setRequest(request);
-    // queryCache.clear();
-    // queryClient.clear();
-    // setRequest(request);
-    // queryClient.resetQueries('movies', { exact: true });
-    // queryClient.removeQueries('movies', { exact: true });
-    // queryClient.refetchQueries('movies', { refetchPage: (page, index) => index === 0 });
-
-    queryClient.setQueryData('movies', data => ({
-      pages: data?.pages.slice(0, 1),
-      pageParams: data?.pageParams.slice(0, 1),
-    }));
-
-    refetch({ refetchPage: (page, index) => index === 0 });
-
-    // setRequest('');
-    // console.log(data?.pages);
-  };
-
-  const onSubmit = search => {
-    history.push({
-      ...location,
-      search: `query=${search}`,
-    });
-  };
+  useEffect(() => {
+    if (query) setRequest(query);
+  }, [query]);
 
   const fetchMovies = async ({ pageParam = 1 }) => {
-    const data = await axios(links.searchMovies(request, pageParam));
-
-    // setRequest('');
-    return data;
+    return await axios(links.searchMovies(request, pageParam));
   };
 
-  // console.log(request);
-  // console.log(query);
-
   const {
-    data,
-    error,
-    isLoading,
-    isSuccess,
-    // isError,
     fetchNextPage,
     hasNextPage,
-    // isFetching,
+    isSuccess,
     isFetchingNextPage,
-    // status,
-    refetch,
-    // isPreviousData,
-  } = useInfiniteQuery('movies', fetchMovies, {
-    refetchOnWindowFocus: false,
-    enabled: false,
-    getNextPageParam: (lastPage, pages) => {
-      if (lastPage.data.page < pages[0].data.total_pages)
-        return Number(lastPage.data.page + 1);
+    data,
+    isLoading,
+    error,
+  } = useInfiniteQuery(['movies', request], fetchMovies, {
+    enabled: !!request,
+    getNextPageParam: ({ data: lastPage }, allPages) => {
+      if (lastPage.page < lastPage.total_pages) return lastPage.page + 1;
       return false;
     },
   });
 
+  const handleSubmit = query => {
+    history.push({
+      ...location,
+      search: `query=${query}`,
+    });
+    setRequest(query);
+  };
+
   const notify = () => {
     toast.error('Whoops, something went wrong');
     toast.clearWaitingQueue();
-    return;
   };
-
-  if (isLoading)
-    return <Loader type="ThreeDots" color="#00BFFF" height={60} width={60} />;
-  if (error) return notify();
 
   return (
     <>
-      <header className="Searchbar">
-        <form onSubmit={handleSubmit} className="SearchForm">
-          <button type="submit" className="SearchForm_button">
-            <span className="SearchForm_button_label">Search</span>
-          </button>
-
-          <input
-            className="SearchForm_input"
-            type="text"
-            name="searchRequest"
-            value={request}
-            onChange={handleRequestChange}
-            autoComplete="off"
-            autoFocus
-            placeholder="Search movies"
-          />
-        </form>
-      </header>
-
+      <SearchBar onSubmit={handleSubmit} />
       <main>
+        {isLoading && (
+          <Loader type="ThreeDots" color="#00BFFF" height={60} width={60} />
+        )}
         {isSuccess &&
           data.pages.map((group, index) => (
             <ul key={index} className="movies_list">
-              {isSuccess &&
-                group.data.results.map(
-                  ({ id, title, name, poster_path, vote_average }) => (
-                    <li key={id} className="movies_item">
-                      <Link
-                        to={{
-                          pathname: `${routes.movies}/${id}`,
-                          state: { from: location },
-                        }}
-                        className="movie_link"
-                      >
-                        <MovieCard
-                          name={title ?? name}
-                          image={poster_path}
-                          rating={vote_average}
-                        />
-                      </Link>
-                    </li>
-                  ),
-                )}
+              {group.data.results.map(
+                ({ id, title, name, poster_path, vote_average }) => (
+                  <li key={id} className="movies_item">
+                    <Link
+                      to={{
+                        pathname: `${routes.movies}/${id}`,
+                        state: { from: location },
+                      }}
+                      className="movie_link"
+                    >
+                      <MovieCard
+                        name={title ?? name}
+                        image={poster_path}
+                        rating={vote_average}
+                      />
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
           ))}
-
+        ​
         {isSuccess && (
           <button
-            onClick={() => fetchNextPage()}
+            onClick={fetchNextPage}
             disabled={!hasNextPage || isFetchingNextPage}
             className="go_back load"
           >
@@ -181,6 +108,7 @@ export default function MoviesPage() {
         )}
       </main>
 
+      {error && notify()}
       <ToastContainer autoClose={2000} limit={1} />
     </>
   );
